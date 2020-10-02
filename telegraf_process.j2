@@ -1,0 +1,23 @@
+[[outputs.influxdb]]
+  urls = ["http://{% if ansible_local.physics.architecture == "aws" %}{{ influxserver2 }}{% else %}monitoring.db.{{ansible_local.physics.platform.split('-')[1]}}.{{ansible_local.physics.platform.split('-')[0]}}.nextgen.igrupobbva{% endif %}:8086"] # required
+  database = "idp-admin-group" # required
+  namepass = ["telegraf*"]
+
+  retention_policy = ""
+  write_consistency = "any"
+
+  timeout = "15s"
+  username = "telegraf"
+  password = "telegraf"
+
+ [[inputs.exec]]
+   commands = ["/etc/telegraf/telegraf.d/telegraf_process.sh"]
+   timeout = "15s"
+   data_format = "influx"
+    name_override = "telegraf_status"
+
+ [[inputs.disk]]
+  mount_points = ["/var/log/telegraf","/etc/telegraf"]
+  name_override = "telegraf_filesystems"
+  [inputs.disk.tags]
+    product = "telegraf"
